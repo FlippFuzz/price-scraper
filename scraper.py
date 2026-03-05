@@ -1,25 +1,24 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, Browser
 
 
-def scrap_price(url: str) -> str:
+def scrap_price(browser: Browser, url: str) -> str:
     """Scrapes the price from a given product page URL.
 
-    This function launches a headless Chromium browser using Playwright,
-    navigates to the specified URL, and extracts the price of a product
-    based on a predefined CSS selector.
+    This function uses an existing browser instance to create a new page,
+    navigates to the specified URL, and extracts the price of a product based on
+    a predefined CSS selector.
 
     Args:
+        browser: An active Playwright browser instance.
         url: The URL of the product page to scrape.
 
     Returns:
         The price of the product as a string, with currency symbols and
         whitespace removed.
     """
-    with sync_playwright() as playwright:
-        # Launch a new Chromium browser instance.
-        browser = playwright.chromium.launch()
-        # Create a new page (like a browser tab).
-        page = browser.new_page()
+    # Create a new page (like a browser tab).
+    page = browser.new_page()
+    try:
         # Navigate to the specified URL.
         page.goto(url)
 
@@ -39,10 +38,11 @@ def scrap_price(url: str) -> str:
         price_element.wait_for()
         # Extract the text content from the located element.
         price_text = price_element.inner_text()
-        # Close the browser to free up system resources.
-        browser.close()
         # Clean the extracted text by removing the dollar sign and stripping whitespace.
         return price_text.replace("$", "").strip()
+    finally:
+        # Close the page to free up system resources.
+        page.close()
 
 
 if __name__ == "__main__":
@@ -53,9 +53,12 @@ if __name__ == "__main__":
         "https://shengsiong.com.sg/product/authentic-tea-house-oolong-chinese-tea-drink-15-l",
     ]
 
-    # Loop through the list of URLs to scrape.
-    for url in urls:
-        print(f"Working on {url}... ")
-        # Call the scraper function to get the price, then print it
-        price = scrap_price(url)
-        print(f"  {price}")
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        # Loop through the list of URLs to scrape.
+        for url in urls:
+            print(f"Working on {url}... ")
+            # Call the scraper function to get the price, then print it
+            price = scrap_price(browser, url)
+            print(f"  {price}")
+        browser.close()
