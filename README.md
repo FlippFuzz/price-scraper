@@ -10,7 +10,7 @@ First, create a dedicated folder for this project. You can do this using File Ex
 
 ### 2. Download Project Files
 
-Download `scraper.py` and `requirements.txt` from the project's source (e.g., GitHub) and place them inside the directory you just created (`C:\price-scraper`).
+Download `scraper.py` and `requirements.txt` and place them inside the directory you just created (`C:\price-scraper`).
 
 ### 3. Open Command Prompt
 
